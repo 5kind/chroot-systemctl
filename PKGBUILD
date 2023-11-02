@@ -18,7 +18,7 @@ b2sums=('7c81e385a62dbee1326de1004377b5dabc4ed795542e5f09dd3d4a381ae25992a36cae9
 	'SKIP'
 	'SKIP')
 
-install="${srcdir}/${pkgname}.install"
+install="${pkgname}.install"
 
 pkgver() {
 	cd "${srcdir}/${_pkgname}"
