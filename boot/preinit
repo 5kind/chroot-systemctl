@@ -36,8 +36,6 @@ extra(){
   systemd_resolved
 }
 
-preinit(){
-  prepare
-  extra
-  motd
-}
+prepare
+extra
+motd
