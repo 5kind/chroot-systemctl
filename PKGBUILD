@@ -10,6 +10,8 @@ url='https://github.com/5kind/chroot-systemctl'
 arch=('any')
 license=('EUPL')
 depends=('python' 'sudo' 'iputils')
+provides=('termux-arch-chroot')
+conflicts=('termux-arch-chroot')
 source=("https://raw.githubusercontent.com/gdraheim/docker-systemctl-replacement/master/EUPL-LICENSE.md"
 	"${_pkgname}::git+${_url}"
 	"${pkgname}::git+${url}")
@@ -29,7 +31,6 @@ package() {
 	# bin scripts
 	cd "${srcdir}/${_pkgname}"
 	install -Dm 755 "files/docker/systemctl3.py" -t "${pkgdir}/usr/local/bin/"
-
 	cd "${srcdir}/${pkgname}/bin"
 	# systemctl sysvcompat
 	install -Dm 755 systemctl -t "${pkgdir}/usr/local/bin/"
@@ -57,6 +58,12 @@ package() {
 	install -Dm 755 "${srcdir}/${pkgname}/lib/systemd/systemd-networkd-wait-online" -t "${pkgdir}/usr/local/lib/systemd"
 	install -Dm 644 "${srcdir}/${pkgname}/lib/systemd/system/android-network-monitor.service" -t "${pkgdir}/usr/lib/systemd/system/"
 	install -Dm 644 "${srcdir}/${pkgname}/lib/systemd/system/wait-online@.service" -t "${pkgdir}/usr/lib/systemd/system/"
+	# termux-arch-chroot
+	mkdir ${pkgdir}/usr/bin
+	[ -x /boot/system/bin/termux-arch-chroot ] &&
+	ln -s /boot/system/bin/termux-arch-chroot ${pkgdir}/usr/bin
+	[ -f /boot/system/lib/systemd/system/termux-arch-chroot@.service ] &&
+	ln -s /boot/system/lib/systemd/system/termux-arch-chroot@.service "${pkgdir}/usr/lib/systemd/system/"
 	# licenses
 	install -Dm 644 "${srcdir}/EUPL-LICENSE.md" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 	# hook
