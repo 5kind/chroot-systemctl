@@ -1,0 +1,10 @@
+[Unit]
+Description=Start %i service by systemctl3.py after network online.
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/lib/systemd/systemd-networkd-wait-online %i
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -1,5 +1,4 @@
 #!/bin/sh
-
 INIT_ARGS="init --quiet"
 SYSTEMCTL_PY="systemctl3.py"
 

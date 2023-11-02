@@ -1,0 +1,36 @@
+#!/bin/bash
+TIMEOUT=60
+PID=$$
+service=$@
+websites=(
+	"www.google.com"
+	"www.baidu.com"
+	"www.example.com"
+)
+
+kill_pid_while_timeout(){
+    sleep $TIMEOUT
+    printf "Timeout occurred while waiting for network connectivity.\n"
+    kill -9 $PID
+}
+
+check_websites() {
+    while true; do
+        for site in "${websites[@]}"; do
+            ping -c 1 "$site" && return
+        done
+        sleep 10
+    done
+}
+
+on_exit() {
+    BG_PID=$!
+    if [ -n "$BG_PID" ]; then
+        kill "$BG_PID"
+    fi
+}
+
+kill_pid_while_timeout &
+trap on_exit EXIT
+check_websites && [ -n $service ] &&
+systemctl3.py start $service

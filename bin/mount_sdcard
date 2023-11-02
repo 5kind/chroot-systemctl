@@ -1,0 +1,42 @@
+#!/bin/bash
+# sdcard config - mount --bind
+storage=/storage/emulated
+#storage=/data/media/0
+sdcard=/mnt/sdcard
+# sdcard -> $sdcard
+sdcard_list=(/ /Android/data /Android/obb)
+# extra -> $storage
+extra_list=(/obb)
+
+# shellcheck disable=SC2059 # $1 and $2 can contain the printf modifiers
+out() { printf "$1 $2\n" "${@:3}"; }
+error() { out "==> ERROR:" "$@"; } >&2
+warning() { out "==> WARNING:" "$@"; } >&2
+msg() { out "==>" "$@"; }
+die() { error "$@"; exit 1; }
+
+ignore_error() {
+  "$@" 2>/dev/null
+  return 0
+}
+
+unchroot_remount(){
+  local src=$1
+  local dest=$2
+  
+  [[ ! -d $src ]] && warning "$src not directory!"
+  mountpoint -q $src && umount -lr $src
+  #nsenter --mount=/proc/$$/ns/mnt mount --bind $src /proc/$$/root/$dest
+  unchroot mount --bind $src $chrootdir/$dest 
+}
+
+chrootdir=$(unchroot realpath /proc/$$/root) || exit 1
+
+for sdcard_src in ${sdcard_list[@]} ;do
+  unchroot_remount $storage/0$sdcard_src $sdcard$sdcard_src
+done
+
+(( ${#extra_list[@]} )) &&
+for extra_src in ${extra_list[@]} ;do
+  unchroot_remount $storage$extra_src $storage$extra_src
+done

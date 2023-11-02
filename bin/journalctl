@@ -1,5 +1,4 @@
 #!/bin/bash
-
 SYSTEMCTL_PY="systemctl3.py"
 
 getcmd(){

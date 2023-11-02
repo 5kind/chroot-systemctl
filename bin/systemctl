@@ -1,5 +1,4 @@
 #!/bin/sh
-
 SYSTEMCTL_PY="systemctl3.py"
 
 getcmd(){
@@ -13,6 +12,7 @@ getcmd(){
 
 SYSTEMCTL=$(getcmd $SYSTEMCTL_PY)
 COMMAND="$SYSTEMCTL"
+APPLET="${0##*/}"
 
 no_sudo_cmds="-h --help --version version \
 cat command default-services environment get-default \
@@ -45,4 +45,8 @@ systemctl() {
   exec ${COMMAND} "$@"
 }
 
-systemctl ${@}
+case "$APPLET" in
+  halt|poweroff|reboot|shutdown)
+  exec /usr/local/bin/$APPLET ${@}  ;;
+  *)  systemctl ${@}  ;;
+esac
