@@ -62,7 +62,7 @@ package() {
 	install -Dm 644 "${srcdir}/${pkgname}/lib/systemd/system/data-decryption.target" -t "${pkgdir}/usr/lib/systemd/system/"
 	install -Dm 644 "${srcdir}/${pkgname}/lib/systemd/system/wait-online@.service" -t "${pkgdir}/usr/lib/systemd/system/"
 	# termux-arch-chroot
-	mkdir ${pkgdir}/usr/bin ${pkgdir}/etc/systemd/system/data-decryption.target.wants
+	mkdir -p ${pkgdir}/usr/bin ${pkgdir}/etc/systemd/system/data-decryption.target.wants
 	[ -x /boot/system/bin/termux-arch-chroot ] &&
 	ln -s /boot/system/bin/termux-arch-chroot ${pkgdir}/usr/bin
 	[ -f /boot/system/lib/systemd/system/termux-arch-chroot@.service ] &&
