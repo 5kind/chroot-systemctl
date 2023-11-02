@@ -70,8 +70,8 @@ package() {
 	# licenses
 	install -Dm 644 "${srcdir}/EUPL-LICENSE.md" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 	# hook
-	install -Dm 644 "${srcdir}/${pkgname}/${pkgname}.hook" -t "${pkgdir}"/usr/share/libalpm/hooks/
-	install -Dm 644 "${srcdir}/${pkgname}/chroot-journalctl.hook" -t "${pkgdir}"/usr/share/libalpm/hooks/
-	install -Dm 644 "${srcdir}/${pkgname}/chroot-systemd-networkd-wait-online.hook" -t "${pkgdir}"/usr/share/libalpm/hooks/
-	install -Dm 644 "${srcdir}/${pkgname}/systemd-resolved-cap.hook" -t "${pkgdir}"/usr/share/libalpm/hooks/	
+	install -Dm 644 "${srcdir}/${pkgname}/hooks/${pkgname}.hook" -t "${pkgdir}"/usr/share/libalpm/hooks/
+	install -Dm 644 "${srcdir}/${pkgname}/hooks/chroot-journalctl.hook" -t "${pkgdir}"/usr/share/libalpm/hooks/
+	install -Dm 644 "${srcdir}/${pkgname}/hooks/chroot-systemd-networkd-wait-online.hook" -t "${pkgdir}"/usr/share/libalpm/hooks/
+	install -Dm 644 "${srcdir}/${pkgname}/hooks/systemd-resolved-cap.hook" -t "${pkgdir}"/usr/share/libalpm/hooks/	
 }
