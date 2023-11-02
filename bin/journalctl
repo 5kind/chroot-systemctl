@@ -94,8 +94,8 @@ required_arg(){
 }
 
 prepare(){
-  [[ ! -x $SYSTEMCTL ]] && die "${0##*/}: command not found: $SYSTEMCTL_PY"
-  [[ ! -x $(command -v python3) ]] && die "${0##*/}: command not found: python3"
+  [[ -x $SYSTEMCTL ]] || die "${0##*/}: command not found: $SYSTEMCTL_PY"
+  command -v python3 &>/dev/null || die "${0##*/}: command not found: python3"
 }
 
 while [[ $# -gt 0 ]]; do
@@ -143,24 +143,24 @@ done
 required_arg "$unit" "-u/--unit"
 
 cmd=("$SYSTEMCTL" "log" "$unit")
-if [[ $follow ]]; then
+if $follow ; then
   cmd+=("-f")
 fi
 if [[ -n "$lines" ]]; then
   cmd+=("-n" "$lines")
 fi
-if [[ $no_pager ]]; then
+if $no_pager ; then
   cmd+=("--no-pager")
 fi
-if [[ $system ]]; then
+if $system ; then
   cmd+=("--system")
-elif [[ $user ]]; then
+elif $user ; then
   cmd+=("--user")
 fi
 if [[ -n "$root" ]]; then
   cmd+=("--root" "$root")
 fi
-if [[ $x ]]; then
+if $x ; then
   cmd+=("-vvv")
 fi
 
