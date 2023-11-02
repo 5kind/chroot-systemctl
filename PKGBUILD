@@ -52,7 +52,7 @@ package() {
 	ln -s start shutdown
 	ln -s start poweroff
 	# boot preinit
-	install -Dm 644 "${srcdir}/${pkgname}/boot/preinit" -t "${pkgdir}/boot/"
+	install -Dm 755 "${srcdir}/${pkgname}/boot/preinit" -t "${pkgdir}/boot/"
 	# service
 	install -Dm 755 "${srcdir}/${pkgname}/lib/systemd/systemd-networkd-wait-online" -t "${pkgdir}/usr/local/lib/systemd"
 	install -Dm 644 "${srcdir}/${pkgname}/lib/systemd/system/android-network-monitor.service" -t "${pkgdir}/usr/lib/systemd/system/"
