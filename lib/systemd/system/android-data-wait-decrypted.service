@@ -4,7 +4,7 @@ Conflicts=shutdown.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/bin/android-data-wait-decrypted
+ExecStart=/usr/local/lib/systemd/android-data-wait-decrypted
 RemainAfterExit=yes
 
 [Install]
