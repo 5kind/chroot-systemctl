@@ -30,12 +30,19 @@ package() {
 	cd "${srcdir}/${_pkgname}"
 	install -Dm 755 "files/docker/systemctl3.py" -t "${pkgdir}/usr/local/bin/"
 
-	cd "${srcdir}/${pkgname}"
-	install -Dm 755 "bin/systemctl" -t "${pkgdir}/usr/local/bin/"
-	install -Dm 755 "bin/journalctl" -t "${pkgdir}/usr/local/bin/"
-	install -Dm 755 "bin/unchroot" -t "${pkgdir}/usr/local/bin/"
-	install -Dm 755 "bin/start" -t "${pkgdir}/usr/local/bin/"
-	install -Dm 755 "bin/init" -t "${pkgdir}/usr/local/bin/"
+	cd "${srcdir}/${pkgname}/bin"
+	# systemctl sysvcompat
+	install -Dm 755 systemctl -t "${pkgdir}/usr/local/bin/"
+	install -Dm 755 journalctl -t "${pkgdir}/usr/local/bin/"
+	install -Dm 755 unchroot -t "${pkgdir}/usr/local/bin/"
+	install -Dm 755 start -t "${pkgdir}/usr/local/bin/"
+	install -Dm 755 init -t "${pkgdir}/usr/local/bin/"
+	# android service
+	install -Dm 755 android-network-monitor -t "${pkgdir}/usr/local/bin/"
+	install -Dm 755 android-start -t "${pkgdir}/usr/local/bin/"
+	install -Dm 755 android-stop -t "${pkgdir}/usr/local/bin/"
+	install -Dm 755 mount_sdcard -t "${pkgdir}/usr/local/bin/"
+	install -Dm 755 switch_sdcard -t "${pkgdir}/usr/local/bin/"
 	# bin symbolic
 	cd "${pkgdir}/usr/local/bin"
 	ln -s init  telinit
@@ -44,6 +51,12 @@ package() {
 	ln -s start reboot
 	ln -s start shutdown
 	ln -s start poweroff
+	# boot preinit
+	install -Dm 644 "${srcdir}/${pkgname}/boot/preinit" -t "${pkgdir}/boot/"
+	# service
+	install -Dm 755 "${srcdir}/${pkgname}/lib/systemd/systemd-networkd-wait-online" -t "${pkgdir}/usr/local/lib/systemd"
+	install -Dm 644 "${srcdir}/${pkgname}/etc/systemd/system/android-network-monitor.service" -t "${pkgdir}/etc/systemd/system/"
+	install -Dm 644 "${srcdir}/${pkgname}/etc/systemd/system/wait-online@.service" -t "${pkgdir}/etc/systemd/system/"
 	# licenses
 	install -Dm 644 "${srcdir}/EUPL-LICENSE.md" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 	# hook

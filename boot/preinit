@@ -7,6 +7,7 @@ source_file(){
 fstab_completed(){
   ensure_data_decryption
   source_file $ETCDIR/boot-completed.d/fstab-completed.sh
+  /usr/local/bin/mount_sdcard
 }
 
 prepare(){
