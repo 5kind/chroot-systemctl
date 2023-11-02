@@ -1,0 +1,5 @@
+#!/bin/bash
+SLEEP_TIME=10
+while [ ! -e /data/data/android ] ;do
+    sleep $SLEEP_TIME
+done

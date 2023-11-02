@@ -56,7 +56,10 @@ package() {
 	install -Dm 755 "${srcdir}/${pkgname}/boot/preinit" -t "${pkgdir}/boot/"
 	# service
 	install -Dm 755 "${srcdir}/${pkgname}/lib/systemd/systemd-networkd-wait-online" -t "${pkgdir}/usr/local/lib/systemd"
+	install -Dm 755 "${srcdir}/${pkgname}/lib/systemd/android-data-wait-decrypted" -t "${pkgdir}/usr/local/lib/systemd"
 	install -Dm 644 "${srcdir}/${pkgname}/lib/systemd/system/android-network-monitor.service" -t "${pkgdir}/usr/lib/systemd/system/"
+	install -Dm 644 "${srcdir}/${pkgname}/lib/systemd/system/android-data-wait-decrypted.service" -t "${pkgdir}/usr/lib/systemd/system/"
+	install -Dm 644 "${srcdir}/${pkgname}/lib/systemd/system/data-decryption.target" -t "${pkgdir}/usr/lib/systemd/system/"
 	install -Dm 644 "${srcdir}/${pkgname}/lib/systemd/system/wait-online@.service" -t "${pkgdir}/usr/lib/systemd/system/"
 	# termux-arch-chroot
 	mkdir ${pkgdir}/usr/bin

@@ -1,0 +1,11 @@
+[Unit]
+Description=Wait for /data to be Decrypted
+Conflicts=shutdown.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/android-data-wait-decrypted
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

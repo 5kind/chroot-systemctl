@@ -1,5 +1,5 @@
 #!/bin/bash
-TIMEOUT=60
+TIMEOUT=600
 PID=$$
 service=$@
 websites=(
