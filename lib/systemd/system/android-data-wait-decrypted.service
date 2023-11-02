@@ -8,4 +8,4 @@ ExecStart=/usr/local/bin/android-data-wait-decrypted
 RemainAfterExit=yes
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=data-decryption.target
