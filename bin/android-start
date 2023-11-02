@@ -1,0 +1,4 @@
+#!/bin/sh
+/usr/local/bin/start
+/usr/local/bin/mount_sdcard
+/usr/local/bin/switch_sdcard

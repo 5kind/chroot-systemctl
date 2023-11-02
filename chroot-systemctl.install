@@ -1,0 +1,29 @@
+#/bin/sh
+
+post_install() {
+    echo 'Replace systemctl with script...'
+    /usr/bin/mv /usr/bin/systemctl /usr/bin/systemctl.real
+    /usr/bin/ln -sr /usr/local/bin/systemctl /usr/bin/systemctl
+    echo 'Replace journalctl with script...'
+    /usr/bin/mv /usr/bin/journalctl /usr/bin/journalctl.real
+    /usr/bin/ln -sr /usr/local/bin/journalctl /usr/bin/journalctl
+    echo 'Replace systemd-networkd-wait-online with script...'
+    /usr/bin/mv /usr/lib/systemd/systemd-networkd-wait-online /usr/lib/systemd/systemd-networkd-wait-online.real
+    /usr/bin/ln -sr /usr/local/lib/systemd/systemd-networkd-wait-online /usr/lib/systemd/systemd-networkd-wait-online
+    echo 'Granting Capabilities to systemd-resolved...'
+    /usr/bin/setcap 'cap_setpcap=+ep cap_net_bind_service=+ep cap_net_raw=+ep' /usr/lib/systemd/systemd-resolved
+}
+
+post_remove() {
+    echo 'Restore systemctl...'
+    [ -L "/usr/bin/systemctl" ] && rm /usr/bin/systemctl
+    [ -e "/usr/bin/systemctl.real" ] && /usr/bin/mv /usr/bin/systemctl.real /usr/bin/systemctl
+    echo 'Restore journalctl...'
+    [ -L "/usr/bin/journalctl" ] && rm /usr/bin/journalctl
+    [ -e "/usr/bin/journalctl.real" ] && /usr/bin/mv /usr/bin/journalctl.real /usr/bin/journalctl
+    echo 'Restore systemd-networkd-wait-online...'
+    [ -L "/usr/lib/systemd/systemd-networkd-wait-online" ] && rm /usr/lib/system/systemd-networkd-wait-online
+    [ -e "/usr/lib/systemd/systemd-networkd-wait-online.real" ] && /usr/bin/mv /usr/lib/systemd/systemd-networkd-wait-online.real /usr/lib/systemd/systemd-networkd-wait-online
+    echo 'Revoking Capabilities from systemd-resolved...'
+    /usr/bin/setcap 'cap_setpcap=-ep cap_net_bind_service=-ep cap_net_raw=-ep' /usr/lib/systemd/systemd-resolved
+}

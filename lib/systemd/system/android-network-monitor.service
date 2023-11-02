@@ -1,0 +1,10 @@
+[Unit]
+Description=Android Network Monitor Service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/android-network-monitor
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

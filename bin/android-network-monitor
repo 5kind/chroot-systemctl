@@ -1,0 +1,5 @@
+#!/bin/sh
+while true; do
+    /usr/local/lib/systemd/systemd-networkd-wait-online ||
+    /usr/local/bin/android-start && sleep 600
+done

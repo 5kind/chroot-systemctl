@@ -1,0 +1,52 @@
+# systemctl
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Path
+Target = usr/bin/systemctl
+
+[Action]
+Description = replace systemctl
+When = PostTransaction
+Exec = /usr/bin/mv /usr/bin/systemctl /usr/bin/systemctl.real; /usr/bin/ln -sr /usr/local/bin/systemctl /usr/bin/systemctl
+NeedsTargets
+
+# journalctl
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Path
+Target = usr/bin/journalctl
+
+[Action]
+Description = replace journalctl
+When = PostTransaction
+Exec = /usr/bin/mv /usr/bin/journalctl /usr/bin/journalctl.real; /usr/bin/ln -sr /usr/local/bin/journalctl /usr/bin/journalctl
+NeedsTargets
+
+# systemd-networkd-wait-online
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Path
+Target = usr/lib/systemd/systemd-networkd-wait-online
+
+[Action]
+Description = replace systemd-networkd-wait-online
+When = PostTransaction
+Exec = /usr/bin/mv /usr/lib/systemd/systemd-networkd-wait-online /usr/lib/systemd/systemd-networkd-wait-online.real; /usr/bin/ln -sr /usr/local/lib/systemd/systemd-networkd-wait-online /usr/lib/systemd/systemd-networkd-wait-online
+NeedsTargets
+
+# systemd-resolved
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Path
+Target = usr/lib/systemd/systemd-resolved
+
+[Action]
+Description = setcap to systemd-resolved
+Depends = libcap
+When = PostTransaction
+Exec = /usr/bin/setcap "cap_setpcap,cap_net_bind_service,cap_net_raw=+ep" /usr/lib/systemd/systemd-resolved
+NeedsTargets

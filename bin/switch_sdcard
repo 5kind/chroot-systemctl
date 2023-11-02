@@ -1,0 +1,26 @@
+#!/bin/bash
+storage=/storage/emulated/0
+media=/data/media/0
+sdcard=/mnt/sdcard
+
+# shellcheck disable=SC2059 # $1 and $2 can contain the printf modifiers
+out() { printf "$1 $2\n" "${@:3}"; }
+error() { out "==> ERROR:" "$@"; } >&2
+warning() { out "==> WARNING:" "$@"; } >&2
+msg() { out "==>" "$@"; }
+die() { error "$@"; exit 1; }
+
+ignore_error() {
+  "$@" 2>/dev/null
+  return 0
+}
+
+case $( realpath $storage ) in
+	$media)	switch_storage=$sdcard	;;
+	$sdcard) switch_storage=$media	;;
+esac
+
+(( EUID )) && die 'This script must be run with root privileges'
+[[ -e $storage ]] || die "$storage not exist!"
+[[ -L $storage ]] || die "$storage is not a symlink!"
+rm -f $storage && ln -sf $switch_storage $storage

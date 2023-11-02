@@ -2,3 +2,4 @@
 /usr/local/lib/systemd/systemd-networkd-wait-online &&
 (( $( cat /sys/class/backlight/*/bl_power ) )) &&
 /usr/local/bin/stop
+/usr/local/bin/switch_sdcard

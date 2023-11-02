@@ -1,12 +1,8 @@
 #!/bin/bash
-# sdcard config - mount --bind
-storage=/storage/emulated
-#storage=/data/media/0
-sdcard=/mnt/sdcard
-# sdcard -> $sdcard
-sdcard_list=(/ /Android/data /Android/obb)
-# extra -> $storage
-extra_list=(/obb)
+storage=/storage/emulated # mount $storage/*_list to chrootdir
+sdcard=/mnt/sdcard  # switch_sdcard (/data/media/0 /mnt/sdcard)
+sdcard_list=(/ /Android/data /Android/obb)  # mount to $storage/0/...
+extra_list=(/obb) # *_list -> fuse/sdcardfs mount to $storage/...
 
 # shellcheck disable=SC2059 # $1 and $2 can contain the printf modifiers
 out() { printf "$1 $2\n" "${@:3}"; }
@@ -23,11 +19,8 @@ ignore_error() {
 unchroot_remount(){
   local src=$1
   local dest=$2
-  
-  [[ ! -d $src ]] && warning "$src not directory!"
-  mountpoint -q $src && umount -lr $src
-  #nsenter --mount=/proc/$$/ns/mnt mount --bind $src /proc/$$/root/$dest
-  unchroot mount --bind $src $chrootdir/$dest 
+  mountpoint -q $dest && umount -lr $dest
+  nsenter --mount=/proc/$$/ns/mnt mount --bind $src $chrootdir/$dest
 }
 
 chrootdir=$(unchroot realpath /proc/$$/root) || exit 1
