@@ -1,0 +1,172 @@
+#!/bin/bash
+
+SYSTEMCTL_PY="systemctl3.py"
+
+getcmd(){
+  local cmd="$1"
+  local local_cmd="${0%/*}/$cmd"
+  [ -x $local_cmd ] &&
+  printf $local_cmd &&
+  return
+  printf $cmd
+}
+
+SYSTEMCTL=$(getcmd $SYSTEMCTL_PY)
+
+unit=""
+follow=false
+lines=""
+no_pager=false
+system=false
+user=false
+root=""
+x=false
+
+# shellcheck disable=SC2059 # $1 and $2 can contain the printf modifiers
+out() { printf "$1 $2\n" "${@:3}"; }
+error() { out "==> ERROR:" "$@"; } >&2
+warning() { out "==> WARNING:" "$@"; } >&2
+msg() { out "==>" "$@"; }
+die() { error "$@"; exit 1; }
+
+ignore_error() {
+  "$@" 2>/dev/null
+  return 0
+}
+
+
+ignore_error() {
+  "$@" 2>/dev/null
+  return 0
+}
+
+usage() {
+cat << EOF
+usage: ${0##*/} [-h] -u unit [-f] [-n num] [--no-pager]
+                  [--system] [--user] [--root path] [-x]
+EOF
+}
+
+usage_verbose(){
+usage
+cat << EOF
+
+options:
+  -h, --help            show this help message and exit
+  -u unit, --unit unit  Systemd unit to display
+  -f, --follow          Follows the log
+  -n num, --lines num   Num of lines to display
+  --no-pager            Do not pipe through a pager
+  --system              Show system units
+  --user                Show user units
+  --root path           Use subdirectory path
+  -x                    Switch on verbose mode
+EOF
+}
+
+die_arg(){
+  local arg=$1
+  shift
+  if [[ -z "$@" ]] ;then
+    local die_msg="$arg"
+  else
+    local die_msg="$@"
+  fi
+
+  case $arg in
+    -*|"")
+      usage
+      die "${die_msg_1}${die_msg}${die_msg_2}"
+      ;;
+    *)
+      ;;
+    esac
+}
+
+expected_arg(){
+  local die_msg_1="argument "
+  local die_msg_2=": expected one argument"
+  die_arg $@
+}
+
+required_arg(){
+  local die_msg_1="the following arguments are required: "
+  die_arg $@
+}
+
+prepare(){
+  [[ ! -x $SYSTEMCTL ]] && die "${0##*/}: command not found: $SYSTEMCTL_PY"
+  [[ ! -x $(command -v python3) ]] && die "${0##*/}: command not found: python3"
+}
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -h|--help)
+      usage_verbose
+      exit 0
+      ;;
+    -u|--unit)
+      shift
+      expected_arg $1 "-u/--unit"
+      unit=$1
+      ;;
+    -f|--follow)
+      follow=true
+      ;;
+    -n|--lines)
+      shift
+      lines=$1
+      ;;
+    --no-pager)
+      no_pager=true
+      ;;
+    --system)
+      system=true
+      ;;
+    --user)
+      user=true
+      ;;
+    --root)
+      shift
+      root=$1
+      ;;
+    -x)
+      x=true
+      ;;
+    *)
+      error "argument $1: ignored explicit argument\'$1\'"
+      shift
+      ;;
+  esac
+  shift
+done
+
+required_arg "$unit" "-u/--unit"
+
+cmd=("$SYSTEMCTL" "log" "$unit")
+if [[ $follow ]]; then
+  cmd+=("-f")
+fi
+if [[ -n "$lines" ]]; then
+  cmd+=("-n" "$lines")
+fi
+if [[ $no_pager ]]; then
+  cmd+=("--no-pager")
+fi
+if [[ $system ]]; then
+  cmd+=("--system")
+elif [[ $user ]]; then
+  cmd+=("--user")
+fi
+if [[ -n "$root" ]]; then
+  cmd+=("--root" "$root")
+fi
+if [[ $x ]]; then
+  cmd+=("-vvv")
+fi
+
+prepare
+[[ -r "$PREFIX/var/log/journal/$unit.log" ]] || \
+[[ -r "$PREFIX/var/log/journal/$unit.service.log" ]] && \
+ignore_error exec "${cmd[@]}"
+exec "${cmd[@]}"

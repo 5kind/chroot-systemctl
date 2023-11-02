@@ -1,0 +1,42 @@
+#!/bin/bash
+source_file(){
+  local file=$1
+  [ -f $file ] && . $file
+}
+
+fstab_completed(){
+  ensure_data_decryption
+  source_file $ETCDIR/boot-completed.d/fstab-completed.sh
+}
+
+prepare(){
+  # prepare filesystem.
+  local ETCDIR=/boot/system/etc/chroot-service
+  source_file $ETCDIR/profile
+  source_file $ETCDIR/post-fs-data.d/fstab-post.sh
+  fstab_completed & # mount noauto after /data decryption, no blocking.
+  # make sure journalctl available for everybody.
+  [ ! -L "/tmp/run" ] && ln -sfr /tmp /tmp/run
+  [ ! -x /usr/bin/python3 ] && die "${0##*/}: command not found: python3"
+}
+
+motd(){
+  source_file /etc/os-release
+  printf "Welcome to $PRETTY_NAME""!""\n"
+  [ -f /etc/motd ] && cat /etc/motd
+}
+
+systemd_resolved(){
+  [ "$(realpath /etc/resolv.conf)" = "/run/systemd/resolve/stub-resolv.conf" ] &&
+  [ ! -e /etc/resolv.conf ] && $SYSTEMCTL start systemd-resolved
+}
+
+extra(){
+  systemd_resolved
+}
+
+preinit(){
+  prepare
+  extra
+  motd
+}

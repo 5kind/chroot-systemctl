@@ -1,0 +1,48 @@
+#!/bin/sh
+
+SYSTEMCTL_PY="systemctl3.py"
+
+getcmd(){
+  local cmd="$1"
+  local local_cmd="${0%/*}/$cmd"
+  [ -x $local_cmd ] &&
+  printf $local_cmd &&
+  return
+  printf $cmd
+}
+
+SYSTEMCTL=$(getcmd $SYSTEMCTL_PY)
+COMMAND="$SYSTEMCTL"
+
+no_sudo_cmds="-h --help --version version \
+cat command default-services environment get-default \
+get-preset help is-enabled list-dependencies \
+list-start-dependencies list-unit-files listen log"
+
+sudo_cmd(){
+  if [ "$(id -u)" -ne 0 ] ; then
+    if SUDO="$(which sudo)" ; then
+      COMMAND="$SUDO $COMMAND"
+    else
+      COMMAND="su -c $COMMAND"
+      # printf "Failed to ${@}: Interactive authentication required.\n"
+      # exit 1
+    fi
+  fi
+}
+
+systemctl() {
+  [ -z "$1" ] && sudo_cmd
+
+  case " $no_sudo_cmds " in
+  *" $1 "*)
+    ;;
+  *)
+    sudo_cmd
+    ;;
+  esac
+
+  exec ${COMMAND} "$@"
+}
+
+systemctl ${@}

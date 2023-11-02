@@ -1,0 +1,95 @@
+#!/bin/bash
+
+SYSTEMCTL_PY="systemctl3.py"
+
+getcmd(){
+  local cmd="$1"
+  local local_cmd="${0%/*}/$cmd"
+  [ -x $local_cmd ] &&
+  printf $local_cmd &&
+  return
+  printf $cmd
+}
+
+SYSTEMCTL=$(getcmd $SYSTEMCTL_PY)
+UNCHROOT=$(getcmd unchroot)
+COMMAND="${0##*/}"
+
+[ -n "$2" ] && shift
+
+# shellcheck disable=SC2059 # $1 and $2 can contain the printf modifiers
+out() { printf "$1 $2\n" "${@:3}"; }
+error() { out "==> ERROR:" "$@"; } >&2
+warning() { out "==> WARNING:" "$@"; } >&2
+msg() { out "==>" "$@"; }
+die() { error "$@"; exit 1; }
+
+ignore_error() {
+  "$@" 2>/dev/null
+  return 0
+}
+
+
+usage() {
+cat <<EOF
+$COMMAND [OPTIONS...] COMMAND
+
+Send $COMMAND commands to the Host, or stop this Chroot Container.
+
+Applet
+EOF
+case $COMMAND in
+    reboot|poweroff|halt|shutdown)  cat <<EOF
+    $COMMAND
+		Send $COMMAND commands to the Host,
+		or stop this chroot container
+EOF
+    ;;
+    *)  cat <<EOF
+    $COMMAND	Send $COMMAND commands to the Host
+EOF
+    ;;
+esac
+cat <<EOF
+Options:
+     --help	Show this help
+
+This is a fake $COMMAND script, See $(realpath ${0}) file for details.
+
+EOF
+exec $UNCHROOT $COMMAND --help
+}
+
+umount_dest(){
+  [ -n "$dest" ] && mountpoint -q "$dest" && umount -l $dest
+  out "[  OK  ] Umounted $dest"
+}
+
+umount_fstab() {
+  while read src dest fstype opts dump pass; do
+    umount_dest
+  done <<< "$(grep -vE '^\s*(#|$)' /etc/fstab)"
+}
+
+system_command(){
+  $UNCHROOT /system/bin/$@
+}
+
+system_halt(){
+  $SYSTEMCTL halt
+  umount_fstab
+}
+
+case $1 in
+  -h|--help)  usage && exit 0 ;;
+esac
+
+(( $(id -u) )) && die "This script must be run with root privileges"
+
+case $COMMAND in
+  reboot|poweroff|halt|shutdown)
+    system_command $COMMAND $@
+    system_halt               ;;
+  *)
+    system_command $COMMAND $@;;
+esac

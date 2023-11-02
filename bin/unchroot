@@ -1,0 +1,107 @@
+#!/bin/bash
+
+shopt -s extglob
+
+chpid=1
+chcwd=0
+skip_chdir=0
+
+# shellcheck disable=SC2059 # $1 and $2 can contain the printf modifiers
+out() { printf "$1 $2\n" "${@:3}"; }
+error() { out "==> ERROR:" "$@"; } >&2
+warning() { out "==> WARNING:" "$@"; } >&2
+msg() { out "==>" "$@"; }
+die() { error "$@"; exit 1; }
+
+ignore_error() {
+  "$@" 2>/dev/null
+  return 0
+}
+
+usage() {
+  cat <<EOF
+usage: ${0##*/} [command] [arguments...]
+
+    -h                  Print this help message
+    -p <pid>            Run in /proc/\$pid/root instead of pid 1
+    -u <user>[:group]   Specify non-root user and optional group to use
+    -g <G_LIST>         specify supplementary groups as g1,g2,..,gN
+    -d [''|workdir]     Change to workdir before running command.
+    -s                  do not change working directory to '/'
+
+If 'command' is unspecified, ${0##*/} will launch \$SHELL($SHELL)|bash|ash|sh.
+
+EOF
+}
+
+
+unchroot() {
+  [[ -d $chrootdir ]] || die "Can't create chroot on non-directory %s" "$chrootdir"
+
+  chroot_args=()
+  [[ $userspec ]] && chroot_args+=(--userspec "$userspec")
+  [[ $groups ]] && chroot_args+=(--groups "$groups")
+  (( $skip_chdir )) && chroot_args+=(--skip-chdir)
+
+  exec chroot "${chroot_args[@]}" -- "$chrootdir" "${args[@]}"
+}
+
+unchroot_shell() {
+  for pid_shell in $SHELL /bin/bash /bin/ash /bin/sh; do
+    $pid_test_x $pid_shell &&
+    printf $pid_shell && return 0
+  done
+  return 1
+}
+
+while getopts ':hp:u:g:d:s' flag; do
+  case $flag in
+    h)
+      usage
+      exit 0
+      ;;
+    p)
+      chpid=$OPTARG
+      ;;
+    u)
+      userspec=$OPTARG
+      ;;
+    g)
+      groups=$OPTARG
+      ;;
+    s)
+      skip_chdir=1
+      ;;
+    d)
+      chcwd=1
+      workdir=$OPTARG
+      ;;
+    :)
+      die '%s: option requires an argument -- '\''%s'\' "${0##*/}" "$OPTARG"
+      ;;
+    ?)
+      die '%s: invalid option -- '\''%s'\' "${0##*/}" "$OPTARG"
+      ;;
+  esac
+done
+shift $(( OPTIND - 1 ))
+
+(( EUID == 0 )) || die 'This script must be run with root privileges'
+
+chrootdir=/proc/$chpid/root
+args=("$@")
+export PATH=$PATH:/bin
+
+pid_chroot="chroot $chrootdir"
+pid_test_x="$pid_chroot test -x"
+pid_realpath="$pid_chroot realpath"
+
+[[ -z "$args" ]] && args=$(unchroot_shell)
+
+(( $chcwd )) && cmd=${args[@]} &&
+if [[ -z $workdir ]] ;then
+  workdir=$($pid_realpath /proc/$chpid/cwd)
+fi &&
+args=($(unchroot_shell) -c "cd $workdir ; $cmd")
+
+unchroot
