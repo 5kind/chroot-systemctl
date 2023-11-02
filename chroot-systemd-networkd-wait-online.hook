@@ -1,0 +1,12 @@
+# systemd-networkd-wait-online
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Path
+Target = usr/lib/systemd/systemd-networkd-wait-online
+
+[Action]
+Description = replace systemd-networkd-wait-online
+When = PostTransaction
+Exec = /usr/bin/mv /usr/lib/systemd/systemd-networkd-wait-online /usr/lib/systemd/systemd-networkd-wait-online.real; /usr/bin/ln -sr /usr/local/lib/systemd/systemd-networkd-wait-online /usr/lib/systemd/systemd-networkd-wait-online
+NeedsTargets

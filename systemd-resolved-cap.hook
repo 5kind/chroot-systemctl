@@ -1,0 +1,13 @@
+# systemd-resolved
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Path
+Target = usr/lib/systemd/systemd-resolved
+
+[Action]
+Description = setcap to systemd-resolved
+Depends = libcap
+When = PostTransaction
+Exec = /usr/bin/setcap "cap_setpcap,cap_net_bind_service,cap_net_raw=+ep" /usr/lib/systemd/systemd-resolved
+NeedsTargets

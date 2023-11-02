@@ -1,0 +1,12 @@
+# journalctl
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Path
+Target = usr/bin/journalctl
+
+[Action]
+Description = replace journalctl
+When = PostTransaction
+Exec = /usr/bin/mv /usr/bin/journalctl /usr/bin/journalctl.real; /usr/bin/ln -sr /usr/local/bin/journalctl /usr/bin/journalctl
+NeedsTargets

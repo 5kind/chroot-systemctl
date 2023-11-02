@@ -55,10 +55,13 @@ package() {
 	install -Dm 644 "${srcdir}/${pkgname}/boot/preinit" -t "${pkgdir}/boot/"
 	# service
 	install -Dm 755 "${srcdir}/${pkgname}/lib/systemd/systemd-networkd-wait-online" -t "${pkgdir}/usr/local/lib/systemd"
-	install -Dm 644 "${srcdir}/${pkgname}/lib/systemd/system/android-network-monitor.service" -t "${pkgdir}/lib/systemd/system/"
-	install -Dm 644 "${srcdir}/${pkgname}/lib/systemd/system/wait-online@.service" -t "${pkgdir}/lib/systemd/system/"
+	install -Dm 644 "${srcdir}/${pkgname}/lib/systemd/system/android-network-monitor.service" -t "${pkgdir}/usr/lib/systemd/system/"
+	install -Dm 644 "${srcdir}/${pkgname}/lib/systemd/system/wait-online@.service" -t "${pkgdir}/usr/lib/systemd/system/"
 	# licenses
 	install -Dm 644 "${srcdir}/EUPL-LICENSE.md" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 	# hook
 	install -Dm 644 "${srcdir}/${pkgname}/${pkgname}.hook" -t "${pkgdir}"/usr/share/libalpm/hooks/
+	install -Dm 644 "${srcdir}/${pkgname}/chroot-journalctl.hook" -t "${pkgdir}"/usr/share/libalpm/hooks/
+	install -Dm 644 "${srcdir}/${pkgname}/chroot-systemd-networkd-wait-online.hook" -t "${pkgdir}"/usr/share/libalpm/hooks/
+	install -Dm 644 "${srcdir}/${pkgname}/systemd-resolved-cap.hook" -t "${pkgdir}"/usr/share/libalpm/hooks/	
 }
