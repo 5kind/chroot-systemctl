@@ -3,6 +3,7 @@
 REPLACE_INIT=/init
 INIT_IS_SCRIPT=true
 SYSTEMCTL_PY=systemctl3.py
+PID_FILE=/run/init.pid
 
 out() {
     prefix="$1"
@@ -80,9 +81,6 @@ replace_halt() {
 }
 
 failback_init() {
-    PID_FILE=/run/init.pid
-    echo $$ > "$PID_FILE"
-    info " PID $$ written to $PID_FILE." >&2
     info " Entering failback init sleep loop." >&2
     exec sleep infinity
 }
@@ -126,6 +124,8 @@ pre_chroot() {
 }
 
 main_init() {
+    echo $$ > "$PID_FILE"
+    info " PID $$ written to $PID_FILE." >&2
     replace_init "$@"
     if ! check_dependencies ;then
         failback_init "$@"
@@ -152,22 +152,37 @@ stop_service() {
 
 kill_pids() {
     pids2kill="$*"
+    init_pid=$(cat "$PID_FILE" 2>/dev/null)
+    # Ensure we are not killing the init process itself
     if [ -z "$pids2kill" ]; then
         info " No process found to kill."
         return 0
     fi
     info " Killing processes in container: $pids2kill"
     echo "$pids2kill" | tr ' ' '\n' | sort -rn | while read -r pid; do
+        [ "$pid" -eq "$init_pid" ] && continue
         info " Sending SIGTERM to PID: $pid"
         kill "$pid" 2>/dev/null
     done
     sleep "$TERMINATE_TIMEOUT"
     echo "$pids2kill" | tr ' ' '\n' | sort -rn | while read -r pid; do
         if kill -0 "$pid" 2>/dev/null; then
-            warning "Sending SIGKILL to PID: $pid"
+            [ "$pid" -eq "$init_pid" ] && continue
+            warning "Sending SIGTERM to PID: $pid"
             kill -9 "$pid" 2>/dev/null
         fi
     done
+    if [ -f "$PID_FILE" ]; then
+        kill "$init_pid" 2>/dev/null
+        info " Sending SIGKILL to init PID: $init_pid"
+        sleep "$TERMINATE_TIMEOUT"
+        if kill -0 "$init_pid" 2>/dev/null; then
+            warning "Sending SIGKILL to init PID: $init_pid"
+            kill -9 "$init_pid" 2>/dev/null
+        fi
+        rm -f "$PID_FILE"
+        info " PID file $PID_FILE removed."
+    fi
     info " All processes in container killed."
 }
 
@@ -218,14 +233,11 @@ kill_chroot() {
             continue
         fi
         if ! check_chroot "$pid" "$$"; then
+            # Refuse to kill self
             [ "$pid" -eq $$ ] && continue
             pids2kill="$pids2kill $pid"
         fi
     done
-    if [ -z "$pids2kill" ]; then
-        error "No process found in chroot."
-        return 0
-    fi
     kill_pids $pids2kill
     return 0
 }
