@@ -1,0 +1,9 @@
+#!/data/data/com.termux/files/usr/bin/sh
+service=${PWD##*/}
+prootcmd="proot-distro"
+prootargs="login ${service} --fix-low-ports --termux-home --shared-tmp --no-arch-warning"
+prootmnts=$($PWD/bin/systemctl-generate-mounts "pdlogin")
+prootinit="/sbin/init"
+init_args="--quiet"
+
+exec $prootcmd $prootargs $prootmnts $prootinit $init_args 2>&1
