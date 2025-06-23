@@ -58,6 +58,10 @@ check_shebang() {
 
 check_replace_init() {
     # Verify REPLACE_INIT is executable
+    if ! [ -f "$REPLACE_INIT" ]; then
+        return 1
+    fi
+
     if ! [ -x "$REPLACE_INIT" ]; then
         error "$REPLACE_INIT is not executable."
         warning "Skip replace init, use default init."
