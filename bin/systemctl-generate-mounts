@@ -1,0 +1,58 @@
+#!/bin/sh
+
+# This script generates mount commands for various container runtimes.
+
+printf_mount() {
+    local mount_arg="$1"
+    local mount_eq="$2"
+    local source="$3"
+    local mount_seg="$4"
+    local target="$5"
+    local mount_opts="$6"
+    if [ -z "$target" ]; then
+        target="$source"
+    fi
+    if [ -z "$mount_opts" ]; then
+        mount_opts=""
+    else
+        mount_opts="${mount_seg}${mount_opts}"
+    fi
+    printf "%s%s%s%s%s%s" "$mount_arg" "$mount_eq" "$source" "$mount_seg" "$target" "$mount_opts"
+}
+
+printf_docker_mount() { printf_mount "-v" " " "$1" ":" "$2" "$3"; }
+printf_singularity_mount() { printf_mount "-B" " " "$1" ":" "$2" "$3"; }
+printf_proot_mount() { printf_mount "-b" " " "$1" ":" "$2"; }
+printf_pdlogin_mount() { printf_mount "--bind" " " "$1" ":" "$2"; }
+
+# Check & Mount Applets in Chroot
+bin_dir=${0%/*}
+if [ -z "$chrootdir" ]; then
+    chrootdir="$PWD/rootfs"
+fi
+
+check_chroot_applet() {
+    # Usage: check_chroot_applet <target-container> <applet>...
+    # Required external variables: $bin_dir $chrootdir $applet_path
+    # e.g. bin_dir=foo chrootdir=bar applet_path=/bin check_chroot_applet docker "baz"
+    # bar/bin/baz exist => output: -v foo/baz:/bin/baz
+    local target_container="$1"; shift
+    local chroot_path="$chrootdir/$applet_path"
+    for applet in "$@"; do
+        if [ -x "$chroot_path/$applet" ] || [ -L "$chroot_path/$applet" ]; then
+            eval printf_${target_container}_mount "$bin_dir/$applet" "$applet_path/$applet" "ro"
+        fi
+    done
+}
+
+printf_systemctl_mounts() {
+    # Usage: printf_systemctl_mounts <target-container>
+    local target_container="$1"
+    applet_path=/bin check_chroot_applet "$target_container" journalctl systemctl
+    applet_path=/lib/systemd/systemd check_chroot_applet "$target_container" systemd
+    applet_path=/sbin check_chroot_applet "$target_container" halt poweroff reboot runlevel shutdown telinit
+    eval printf_${target_container}_mount "$bin_dir/init" "/sbin/init"
+    eval printf_${target_container}_mount "$bin_dir/systemctl3.py" "/bin/systemctl3.py"
+}
+
+printf_systemctl_mounts "$@"
