@@ -51,8 +51,8 @@ printf_systemctl_mounts() {
     applet_path=/bin check_chroot_applet "$target_container" journalctl systemctl
     applet_path=/lib/systemd/systemd check_chroot_applet "$target_container" systemd
     applet_path=/sbin check_chroot_applet "$target_container" halt poweroff reboot runlevel shutdown telinit
-    eval printf_${target_container}_mount "$bin_dir/init" "/sbin/init"
-    eval printf_${target_container}_mount "$bin_dir/systemctl3.py" "/bin/systemctl3.py"
+    eval printf_${target_container}_mount "$bin_dir/init" "/sbin/init" ro
+    eval printf_${target_container}_mount "$bin_dir/systemctl3.py" "/bin/systemctl3.py" ro
 }
 
 printf_systemctl_mounts "$@"
