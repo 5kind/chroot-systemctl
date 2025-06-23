@@ -138,7 +138,8 @@ main_init() {
     else
         pre_chroot "$@"
     fi
-    $SYSTEMCTL_PY init "$@"
+    $SYSTEMCTL_PY default-services
+    exec $SYSTEMCTL_PY init "$@"
 }
 
 #######################
