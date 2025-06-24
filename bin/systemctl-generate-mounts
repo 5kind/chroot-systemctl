@@ -17,7 +17,7 @@ printf_mount() {
     else
         mount_opts="${mount_seg}${mount_opts}"
     fi
-    printf "%s%s%s%s%s%s" "$mount_arg" "$mount_eq" "$source" "$mount_seg" "$target" "$mount_opts"
+    printf "%s%s%s%s%s%s " "$mount_arg" "$mount_eq" "$source" "$mount_seg" "$target" "$mount_opts"
 }
 
 printf_docker_mount() { printf_mount "-v" " " "$1" ":" "$2" "$3"; }
