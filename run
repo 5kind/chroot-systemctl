@@ -6,4 +6,4 @@ prootmnts=$($PWD/bin/systemctl-generate-mounts "pdlogin")
 prootinit="/sbin/init"
 init_args="--quiet"
 
-exec $prootcmd $prootargs $prootmnts $prootinit $init_args 2>&1
+exec $prootcmd $prootargs $prootmnts -- $prootinit $init_args 2>&1
