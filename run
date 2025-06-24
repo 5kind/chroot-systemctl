@@ -1,9 +1,27 @@
 #!/data/data/com.termux/files/usr/bin/sh
 service=${PWD##*/}
-prootcmd="proot-distro"
-prootargs="login ${service} --fix-low-ports --termux-home --shared-tmp --no-arch-warning"
-prootmnts=$($PWD/bin/systemctl-generate-mounts "pdlogin")
-prootinit="/sbin/init"
+chrootdir="$PWD/rootfs"
+chrootcmd="termux-arch-chroot"
+chrootargs="-N -n 2 -r -A -F -l -b $PREFIX/tmp/.X11-unix:/tmp/.X11-unix"
+chrootmnts=$($PWD/bin/systemctl-generate-mounts "docker")
+chrootinit="/sbin/init"
 init_args="--quiet"
+# Check if the resolv.conf file is effectively empty
+file_to_check="$chrootdir/etc/resolv.conf"
+is_effectively_empty=1
+if [ ! -f "$file_to_check" ]; then
+    is_effectively_empty=0
+else
+    processed_content=$(sed '/^[[:space:]]*#/d; /^[[:space:]]*$/d' "$file_to_check")
+    if [ -z "$processed_content" ]; then
+        is_effectively_empty=0
+    fi
+fi
+if [ "$is_effectively_empty" -eq 0 ]; then
+    echo "INFO: '$file_to_check' is empty or contains only comments. Initializing..."
+    install -Dm644 "$PREFIX/etc/resolv.conf" "$file_to_check"
+else
+    echo "INFO: '$file_to_check' contains active configuration. Skipping."
+fi
 
-exec $prootcmd $prootargs $prootmnts -- $prootinit $init_args 2>&1
+exec $chrootcmd $chrootargs $chrootmnts $chrootdir -- $chrootinit $init_args 2>&1
