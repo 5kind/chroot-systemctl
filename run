@@ -2,7 +2,7 @@
 service=${PWD##*/}
 chrootdir="$(readlink -f $PWD/rootfs)"
 chrootcmd="$(command -v bash) termux-arch-chroot"
-chrootargs="-N -n 2 -r -A -F -l -v /dev -b $PREFIX/tmp/.X11-unix:/tmp/.X11-unix"
+chrootargs="$chrootargs -N -n 2 -r -A -F -l -v /dev -b $PREFIX/tmp/.X11-unix:/tmp/.X11-unix"
 chrootmnts=$($PWD/bin/systemctl-generate-mounts "docker")
 chrootinit="/sbin/init"
 init_args="--quiet"
