@@ -20,13 +20,13 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: upgrade submodule to latest
-        run: git submodule update --init --remote --merge src
+        run: git submodule update --init --remote --merge
 
       - name: install files to repo
         run: |
-          install -vDm755 src/files/docker/systemctl3.py bin/systemctl3.py
-          install -vDm755 src/files/docker/journalctl3.py bin/journalctl
-          install -vDm644 src/EUPL-LICENSE.md EUPL-LICENSE.md
+          install -vDm755 src/docker-systemctl-replacement/files/docker/systemctl3.py bin/systemctl3.py
+          install -vDm755 src/docker-systemctl-replacement/files/docker/journalctl3.py bin/journalctl
+          install -vDm644 src/docker-systemctl-replacement/EUPL-LICENSE.md EUPL-LICENSE.md
 
       - name: commit changes
         uses: stefanzweifel/git-auto-commit-action@v5
