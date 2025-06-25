@@ -30,8 +30,9 @@ jobs:
         run: |
           install -vDm755 src/docker-systemctl-replacement/files/docker/systemctl3.py bin/systemctl3.py
           install -vDm755 src/docker-systemctl-replacement/files/docker/journalctl3.py bin/journalctl
-          install -vDm644 src/docker-systemctl-replacement/EUPL-LICENSE.md EUPL-LICENSE.md
+          install -vDm644 src/docker-systemctl-replacement/EUPL-LICENSE.md doc/EUPL-LICENSE.md
           install -vDm644 src/android-permissions/release/aids.conf local/lib/sysusers.d/aids.conf
+          install -vDm644 src/android-permissions/LICENSE doc/LICENSE-Apache-2.0.txt
 
       - name: commit changes
         uses: stefanzweifel/git-auto-commit-action@v5
