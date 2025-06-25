@@ -56,7 +56,7 @@ check_uninstall_applet() {
     # Check if target_path exists and is a text file
     if [ -f "$target_path" ] || [ -L "$target_path" ]; then
         check_text "$target_path" &&
-        rm -f "$target_path"
+        rm -vf "$target_path"
     fi
     return 0
 }
@@ -72,9 +72,9 @@ install_applet() {
     fi
 
     if [ -x "$source_path" ]; then
-        install -Dm755 "$source_path" "$target_path"
+        install -vDm755 "$source_path" "$target_path"
     else
-        install -Dm644 "$source_path" "$target_path"
+        install -vDm644 "$source_path" "$target_path"
     fi
 }
 
