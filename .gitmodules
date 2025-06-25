@@ -1,4 +1,4 @@
-[submodule "src"]
+[submodule "src/docker-systemctl-replacement"]
 	path = src/docker-systemctl-replacement
 	url = https://github.com/gdraheim/docker-systemctl-replacement
 	branch = master
