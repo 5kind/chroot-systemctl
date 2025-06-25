@@ -39,3 +39,10 @@ systemctl status my-app.service
 
 # Stop the service
 systemctl stop my-app.service
+```
+
+## License
+
+- Files related to [android-permissions](src/android-permissions) are [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
+
+- All other parts are licensed under the [EUPL-1.2](https://opensource.org/licenses/EUPL-1.2) license.
