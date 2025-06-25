@@ -2,3 +2,6 @@
 	path = src/docker-systemctl-replacement
 	url = https://github.com/gdraheim/docker-systemctl-replacement
 	branch = master
+[submodule "src/android-permissions"]
+	path = src/android-permissions
+	url = https://github.com/5kind/android-permissions

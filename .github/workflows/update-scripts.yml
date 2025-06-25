@@ -27,11 +27,12 @@ jobs:
           install -vDm755 src/docker-systemctl-replacement/files/docker/systemctl3.py bin/systemctl3.py
           install -vDm755 src/docker-systemctl-replacement/files/docker/journalctl3.py bin/journalctl
           install -vDm644 src/docker-systemctl-replacement/EUPL-LICENSE.md EUPL-LICENSE.md
+          install -vDm644 src/android-permissions/release/aids.conf local/lib/sysusers.d/aids.conf
 
       - name: commit changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "ci(deps): update systemctl replacement scripts"
-          file_pattern: src bin/* .gitmodules EUPL-LICENSE.md
+          file_pattern: src bin/* .gitmodules EUPL-LICENSE.md local
           commit_user_name: github-actions[bot]
           commit_user_email: github-actions[bot]@users.noreply.github.com
