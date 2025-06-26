@@ -5,6 +5,8 @@ INIT_IS_SCRIPT=true
 SYSTEMCTL_PY=systemctl3.py
 PID_FILE=/run/init.pid
 
+. /etc/profile
+
 out() {
     prefix="$1"
     shift
